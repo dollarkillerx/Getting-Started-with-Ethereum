@@ -21,3 +21,20 @@ func TestDESEncoding(t *testing.T) {
 	}
 	log.Println(string(decrypt))
 }
+
+func TestDES3DEncoding(t *testing.T) {
+	pc := "hello worlddsffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffbghytrjyturjkuykyiutkevwvrybyukynmilmo8ilm8oln7bvtycrec4rhcrhevrtvrthv64r 57 jjbv657jb6betrvgertwcfrtfcdertcferwt"
+	key := RandKey(24)
+	encoding, err := DES3DEncoding(key, pc)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(Base64Encoding(encoding))
+	log.Println(len(Base64Encoding(encoding)))
+
+	decrypt, err := DES3DDecrypt(key, encoding)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(string(decrypt))
+}
