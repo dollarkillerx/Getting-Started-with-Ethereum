@@ -7,6 +7,7 @@ import (
 
 var base58 = []byte("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz")
 
+// Base58Encoding Base58Encoding...
 func Base58Encoding(str string) string { //Base58编码
 	//1. 转换成ascii码对应的值
 	strByte := []byte(str)
