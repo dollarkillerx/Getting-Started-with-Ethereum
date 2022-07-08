@@ -165,3 +165,109 @@ contract DataType {
     }
 }
 ```
+
+#### 地址  (地址是合約的基礎)
+
+- balance: 獲取餘額
+- transfer: 轉賬
+- send: 轉賬不安全 不推薦使用， 合約餘額不夠需要自己手動處理 不會報錯 [慎用]
+- call: 合約内部調用合約，調用底層代碼 [慎用]
+- callcode: 調用底層代碼 [慎用]
+- delegatecall: 調用底層代碼 [慎用]
+
+``` 
+    uint256 public thisB;
+    function tesx() {
+        thisB = address(this).balance;  // this 指向合約本身
+    }
+
+    // payable 賬戶轉賬到合約
+    function constract_get_money() public payable {
+
+    }
+
+    // 獲取合約餘額
+    uint256 public my_balance;
+    function get_constract_balance() public {
+       my_balance =  address(this).balance;
+    }
+
+    // 轉賬目標地址
+    address addr = 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2;
+    // 轉賬到用戶
+    function trans() public {
+        addr.transfer(5 * 10 ** 18); // 單位為 wei
+    }
+```
+
+
+#### 高級語法部分:
+
+- `msg.sender` `address`  調用當前合約的 的地址
+- `msg.value`  `uint(單位wei)` 是調用當前 `payable` 方法傳入的金額
+- `msg.data` `bytes` 完整調用數據
+
+- `block.number` `uint` 當前區塊號
+- `blockhash` `byte32` 當前區塊hash
+- `block.gaslimit` `uint` 當前的gaslimit
+- `block.timestamp` `uint` 當前區塊的時間戳
+
+- `now` 當前區塊的時間戳
+- `gasleft()` `uint` 剩餘的gas
+- `tx.gasprice` `uint` 交易 `gas` 價格
+
+#### 錯誤處理方式:
+
+- `require(msg.value == 10)`  如果不滿足條件就會報錯   (不會消耗gas)  (官方推薦)
+- `assert(msg.value == 10)`   如果不滿足條件就會報錯   (會消耗gas)
+- `revert()`  處理複雜的邏輯  更加靈活多變
+
+``` 
+if (msg.value != 10) {
+    revert();
+}
+
+money = msg.value
+```
+
+- `throw` 以廢棄
+
+``` 
+contract Plus {
+    address public owner;
+    // msg.sender 調用當前合約的 的地址
+    function get_owner() public {
+        if (owner== 0) {  // 這樣可以做到 owner之記錄首次調用者的地址
+            owner = msg.sender;
+        }
+    }
+
+    // 限定合規的錢才能轉賬
+        // msg.value 是調用當前方法傳入的金額
+    function contract_get_money() public payable returns(string) {
+
+        // require(msg.value > 5 * 10 ** 18);
+        if (msg.value < 5 * 10 ** 18) {
+            revert();
+            return "轉賬金額必須 >= 5 eth";
+        }
+
+
+        return "轉賬成功";
+    }
+
+    uint256 public contract_balance;
+    function get_balance() public {
+        contract_balance = address(this).balance;
+    }
+}
+```
+
+
+#### 時間
+
+- 1 minute == 60 seconds
+- 1 hours == 60 minutes
+- 1 day == 24 hours
+- 1 weeks == 7 days
+- 1 years == 365 days
