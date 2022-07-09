@@ -266,8 +266,105 @@ contract Plus {
 
 #### 時間
 
-- 1 minute == 60 seconds
+- 1 minutes == 60 seconds
 - 1 hours == 60 minutes
 - 1 day == 24 hours
 - 1 weeks == 7 days
 - 1 years == 365 days
+
+``` 
+   function test1() public pure returns (string)  {
+        if (1 minutes == 60 seconds) {
+            return "1分鐘 = 60秒";
+        }
+
+        return "";
+    } 
+```
+
+##### 訪問函數 & 調用其他合約
+
+``` 
+    string name = "hello";
+    
+    string public new_name = "hello2";
+
+    function get_name() public view returns (string) {
+        return name;
+    }
+
+
+}
+
+contract TestFunc2 {
+    function getTestFuncNewName() public returns (string) {
+        TestFunc t = new TestFunc();  // 聲明并創建
+        return t.new_name();
+    }
+    function getTestFuncNewName2() public returns (string) {
+        TestFunc public tf;   // 聲明
+        address addr = new TestFunc(); // 獲取地址
+        tf = TestFunc(addr);  // 賦值
+        return tf.new_name();
+    }
+}
+```
+
+##### 合約之間的轉賬
+
+``` 
+
+contract TestFunc2 {
+    // TestFunc t = new TestFunc();
+    
+    function getTestFuncNewName() public returns (string) {
+        TestFunc t = new TestFunc();
+        return t.new_name();
+    }
+}
+
+contract Trans1 {
+    // 查看當前合約的餘額
+    function get_balance() public view returns (uint256) {
+        return address(this).balance;
+    }
+     // 想當前合約存入金額
+    function contract_get_money() public payable {
+
+    }
+}
+
+contract Trans2 {
+
+    uint256 public tran1Addr;
+
+    function tran1_addr() public {
+        address addr = new Trans1(); // 810453375409437434270020959927630513759751760877   這樣會新實例化一個合約
+        
+        tran1Addr = uint256(addr); // 0x3328358128832A260C76A4141e19E2A943CD4B6D
+    }
+
+    // 查看當前合約的餘額
+    function get_balance() public view returns (uint256) {
+        return address(this).balance;
+    }
+
+    // 想當前合約存入金額
+    function contract_get_money() public payable {
+
+    }
+
+    // 初始化 trans1
+    Trans1 trans1;
+    function getTrans1Addr(address addr) public {
+        trans1 = Trans1(addr);
+    }
+
+    // 轉賬給Trans1
+    function pay_to_t1() public {
+        // 調用trans1轉賬方法  5eth  gas最高消耗800
+        trans1.contract_get_money.value(5 * 10 ** 18).gas(800)();
+    }
+
+}
+```
