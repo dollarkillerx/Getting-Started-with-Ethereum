@@ -368,3 +368,68 @@ contract Trans2 {
 
 }
 ```
+
+##### 繼承
+
+- is 繼承
+- 繼承相同方法時   最遠繼承原則  (所以當前say方法是Job的)
+
+``` 
+// inherit 繼承
+
+contract Person {
+    function say() public pure returns (string) {
+        return "say hello";
+    }
+}
+
+contract Job {
+    function say() public pure returns (string) {
+        return "job hello";
+    }
+}
+
+// 繼承相同方法時   最遠繼承原則  (所以當前say方法是Job的)
+contract Teacher is Person,Job {  // is 繼承
+    string public sy;
+    function test() public {
+        sy = say();
+    }
+
+}
+
+contract Student  is Teacher {
+    string public sy;
+    function test() public {
+        sy = say();
+    } 
+}
+```
+
+- Modifier 修飾器
+
+``` 
+// modifier 修飾器
+
+contract TestModifier {
+
+    address admin;
+    // 構造函數
+    constructor() public {
+        admin = msg.sender;
+    }
+
+    // 修飾器
+    modifier auth_filter() {
+        // 校驗是不是管理員
+        require(msg.sender == admin);
+        _;
+    }
+
+    // 權限校驗,只能部署者 也就是管理員調用,其他用戶不行
+    function get_name() public view auth_filter returns (string) {
+        return "hallen";
+    }
+
+} 
+```
