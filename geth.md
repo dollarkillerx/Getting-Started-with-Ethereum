@@ -28,7 +28,7 @@ https://learnblockchain.cn/2017/11/29/geth_cmd_options
 
 我們用下面的就行了:
 
-`geth --identity "v1" --rpc --rpcport 8545 --rpcapi "net,personal,eth" --datadir "local_data"`
+`geth --identity "v1" --rpc --rpcport 8545 --rpcapi "net,personal,eth" --datadir "local_data" -allow-insecure-unlock`
 
 目錄結構:
 - local_data
