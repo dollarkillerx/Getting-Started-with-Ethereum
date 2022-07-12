@@ -2,7 +2,6 @@ package test
 
 import (
 	"eth_study/eth_go/eth_utils"
-	"eth_study/eth_go/eth_utils/db"
 	"eth_study/eth_go/eth_utils/enum"
 	"eth_study/eth_go/eth_utils/eth"
 	"eth_study/eth_go/eth_utils/net"
@@ -211,7 +210,7 @@ func TestEthUtilsUnlockAccount(t *testing.T) {
 	log.Println(id)
 }
 
-func TestPushString(t *testing.T) {
+/*func TestPushString(t *testing.T) {
 	err := eth_utils.InitEthClient("http://127.0.0.1:8545")
 	if err != nil {
 		log.Fatalln(err)
@@ -223,3 +222,4 @@ func TestPushString(t *testing.T) {
 	}
 	log.Println(ok)
 }
+*/
