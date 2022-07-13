@@ -82,15 +82,15 @@ func TestEthUtilsNewAccount(t *testing.T) {
 		log.Fatalln(err)
 	}
 
-	id, err := personal.NewAccount("1234567")
+	id, err := personal.NewAccount("1008611")
 	if err != nil {
 		log.Fatalln(err)
 	}
 	log.Println(id)
 
-	// 0xf004e78a16e8ff68433a3f5a86f0b34f25a5c539 123456789
-	// 0x9a69cf14f89dcab2cb812209a69a2095aecad1d2 12345678910
-	// 0x9ae20fd0d03b682dd979e5c214f18dfdf26f8881 1234567
+	// 0xf79297b0b3e7010729f09747519981ff6c787f2a 1234567
+	// 0xd3eed2b1537381e2c783298e82725fda93fda935 1234567
+	// 0xb89a820913a4cae5a1cc6d292a80765eedeadda1 1008611
 }
 
 func TestEthUtilsGetAccountBalance(t *testing.T) {
@@ -203,7 +203,7 @@ func TestEthUtilsUnlockAccount(t *testing.T) {
 		log.Fatalln(err)
 	}
 
-	id, err := personal.UnlockAccount("0xf004e78a16e8ff68433a3f5a86f0b34f25a5c539", "123456789")
+	id, err := personal.UnlockAccount("0xf79297b0b3e7010729f09747519981ff6c787f2a", "1234567")
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -28,9 +28,48 @@ https://learnblockchain.cn/2017/11/29/geth_cmd_options
 
 我們用下面的就行了:
 
-`geth --identity "v1" --rpc --rpcport 8545 --rpcapi "net,personal,eth" --datadir "local_data" --http.corsdomain "*" -allow-insecure-unlock `
+`geth --identity "v1" --rpc --rpcport 8545 --rpcapi "net,personal,eth" --datadir "local_data" --http.corsdomain "*" -allow-insecure-unlock console `
 
 目錄結構:
 - local_data
   - geth        存放鏈信息
   - keystore    存放用戶信息
+
+#### console 下的一些基礎命令
+
+- `eth.coinbase` 
+- `eth.accounts`
+- `eth.getBalance("xxx")`
+- `miner.start(1)` // 挖礦 綫程數
+- `eth.mining`      // 是否在挖礦
+- `miner.stop()`    // 停止挖礦
+
+#### 初始化私有節點 創造世塊
+
+``` 
+{
+  "config": {
+    "chainId": 666,  // 鏈地址
+    "homesteadBlock": 0,
+    "eip150Block": 0,
+    "eip155Block": 0,
+    "eip158Block": 0
+  },
+  "nonce": "0x0",
+  "timestamp": "0x00",
+  "extraData": "", // 擴展數據
+  "gasLimit": "0xffffffff", 
+  "difficulty": "0x00002",   // 難度
+  "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "coinbase": "0x0000000000000000000000000000000000000000",
+  "number": "0x0",
+  "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "alloc": { }
+}
+```
+
+初始化:
+
+`geth -datadir "local_data2" init genesis.json`
+
+`geth --identity "v1" --rpc --rpcport 8545 --rpcapi "net,personal,eth" --datadir "local_data2" --http.corsdomain "*" -allow-insecure-unlock console`
