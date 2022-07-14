@@ -4,10 +4,11 @@ import (
 	"eth_study/eth_go/demo3/ab2_t2"
 	"eth_study/eth_go/demo3/nt1"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"log"
 	"testing"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 func TestV1(t *testing.T) {

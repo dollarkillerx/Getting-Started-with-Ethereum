@@ -70,6 +70,6 @@ https://learnblockchain.cn/2017/11/29/geth_cmd_options
 
 初始化:
 
-`geth -datadir "local_data2" init genesis.json`
+`geth -datadir "local_data3" init genesis.json`
 
-`geth --identity "v1" --rpc --rpcport 8545 --rpcapi "net,personal,eth" --datadir "local_data2" --http.corsdomain "*" -allow-insecure-unlock console`
+`geth --identity "v1" --rpc --rpcport 8545 --rpcapi "net,personal,eth" --datadir "local_data3" --http.corsdomain "*" -allow-insecure-unlock console`
