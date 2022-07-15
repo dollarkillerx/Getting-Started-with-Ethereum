@@ -1,5 +1,9 @@
 # Solidity
 
+### Tools
+- Ganache
+- Remix
+
 ### Hello world
 
 ``` 
