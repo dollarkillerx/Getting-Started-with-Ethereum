@@ -1,32 +1,138 @@
 package demo3
 
 import (
+	"context"
+	"crypto/ecdsa"
 	"eth_study/eth_go/demo3/ab2_t2"
+	"eth_study/eth_go/demo3/erc20"
 	"eth_study/eth_go/demo3/nt1"
 	"fmt"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/crypto"
 	"log"
+	"math/big"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
+func TestErc20(t *testing.T) {
+	// 參考
+	// https://caohuan.tech/2021/09/06/%E4%BB%A5%E5%A4%AA%E5%9D%8A/%E4%BD%BF%E7%94%A8go%E8%B0%83%E7%94%A8%E6%99%BA%E8%83%BD%E5%90%88%E7%BA%A6/
+	// https://goethereumbook.org/zh/transfer-tokens/
+
+	// 0x9Ac6bd28e76Ac936D35B80ee1002265519E7e923
+	constant := common.HexToAddress("0x9Ac6bd28e76Ac936D35B80ee1002265519E7e923")
+	dial, err := ethclient.Dial("http://127.0.0.1:8545")
+	if err != nil {
+		panic(err)
+	}
+
+	eRC20, err := erc20.NewERC20(constant, dial)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	{
+		of, err := eRC20.BalanceOf(nil, common.HexToAddress("0x78324E5B83Ecc466B8A0F7be298712993CCb40E2"))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(of)
+	}
+
+	{
+		of, err := eRC20.BalanceOf(nil, common.HexToAddress("0xB1B775149F08aC25C2a797f827D6365E8123B802"))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(of)
+	}
+
+	{
+		privateKey, err := crypto.HexToECDSA("c00b13047916c5dfb58944d252996c9e436ff1a9a333d53ad646a275347d80e3")
+		if err != nil {
+			log.Fatal(err)
+		}
+		publicKey := privateKey.Public()
+		publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+		if !ok {
+			log.Fatal("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+		}
+
+		fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+		nonce, err := dial.PendingNonceAt(context.Background(), fromAddress)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		gasPrice, err := dial.SuggestGasPrice(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		auth := bind.NewKeyedTransactor(privateKey)
+		auth.Nonce = big.NewInt(int64(nonce))
+		auth.Value = big.NewInt(0)     // in wei
+		auth.GasLimit = uint64(300000) // in units
+		auth.GasPrice = gasPrice
+
+		transfer, err := eRC20.Transfer(auth, common.HexToAddress("0xB1B775149F08aC25C2a797f827D6365E8123B802"), big.NewInt(100))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(transfer.ChainId().String())
+		log.Println(transfer.Hash().String())
+	}
+}
+
+func TestErc202(t *testing.T) {
+	// 0xc2132d05d31c914a87c6611c10748aeb04b58e8f
+	constant := common.HexToAddress("0xc2132d05d31c914a87c6611c10748aeb04b58e8f")
+	dial, err := ethclient.Dial("https://polygon-rpc.com")
+	if err != nil {
+		panic(err)
+	}
+
+	eRC20, err := erc20.NewERC20(constant, dial)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	{
+		of, err := eRC20.BalanceOf(nil, common.HexToAddress("0xd1f84EC6652b315e77EbFFA649f6742754574796"))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(of)
+	}
+
+	{
+		of, err := eRC20.BalanceOf(nil, common.HexToAddress("0xB2EaC6c72B225c6a24Ad08bD03D2B29a0219d9f1"))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(of)
+	}
+}
+
 func TestV1(t *testing.T) {
 	// 合約地址
-	// 0x2c60005875Fa4C43d0127508e6a03A6Fc97a964e
-	constantA2 := common.HexToAddress("0x8f2A7a85258333de51C713c64A4F9bD97794CBbC")
+	// 0xAbE050045031a9A3849bf8789bd4D57610A5A05F
+	constantA2 := common.HexToAddress("0xAbE050045031a9A3849bf8789bd4D57610A5A05F")
 
 	dial, err := ethclient.Dial("http://127.0.0.1:8545")
 	if err != nil {
 		panic(err)
 	}
 
-	t2, err := ab2_t2.NewAB2T2(constantA2, dial)
+	t2, err := ab2_t2.NewTest2Abb(constantA2, dial)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	name, err := t2.Name(nil) //  string public name = "hallen";
+	name, err := t2.GetName(nil, "HELLOWORLD") //  string public name = "hallen";
 	if err != nil {
 		log.Fatalln(err)
 	}

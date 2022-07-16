@@ -1,16 +1,21 @@
 [
 	{
-		"constant": true,
-		"inputs": [],
-		"name": "name",
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			}
+		],
+		"name": "getName",
 		"outputs": [
 			{
+				"internalType": "string",
 				"name": "",
 				"type": "string"
 			}
 		],
-		"payable": false,
-		"stateMutability": "view",
+		"stateMutability": "pure",
 		"type": "function"
 	}
 ]
