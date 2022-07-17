@@ -1,13 +1,16 @@
-package demo3
+package maxDemo
 
 import (
 	"context"
 	"crypto/ecdsa"
-	"eth_study/eth_go/demo3/ab2_t2"
-	"eth_study/eth_go/demo3/erc20"
-	"eth_study/eth_go/demo3/nt1"
+	"eth_study/eth_go/maxDemo/ab2_t2"
+	"eth_study/eth_go/maxDemo/bank"
+	"eth_study/eth_go/maxDemo/erc20"
+	"eth_study/eth_go/maxDemo/nt1"
+	"eth_study/eth_go/maxDemo/phr"
 	"fmt"
 	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -19,6 +22,205 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"golang.org/x/crypto/sha3"
 )
+
+func TestBank(t *testing.T) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	constant := common.HexToAddress("0x85E3887Edba569d1C240Daa874a30e3EDA5472EA")
+	connect, err := ethclient.Dial("http://127.0.0.1:8545")
+	if err != nil {
+		panic(err)
+	}
+
+	newBank, err := bank.NewBank(constant, connect)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// 獲取銀行金額
+	{
+		balances, err := newBank.BankBalances(nil)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(balances)
+	}
+
+	// 獲取銀行餘額
+	{
+		balances, err := newBank.CheckBalances(&bind.CallOpts{
+			From: common.HexToAddress("0xB1B775149F08aC25C2a797f827D6365E8123B802"),
+		})
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(balances)
+	}
+
+	// 入金
+	//{
+	//	// 加载您的私钥
+	//	privateKey, err := crypto.HexToECDSA("acb34282575500fb535a116c04b8d3c3e1f2019f5a4e5d825f92f1881654b846")
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//	publicKey := privateKey.Public()
+	//	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	//	if !ok {
+	//		log.Fatal("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+	//	}
+	//
+	//	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+	//	// 读取我们应该用于帐户交易的随机数
+	//	nonce, err := connect.PendingNonceAt(context.Background(), fromAddress)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//
+	//	// 獲取gas費用
+	//	gasPrice, err := connect.SuggestGasPrice(context.Background())
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//
+	//	// 獲取鏈id
+	//	chainID, err := connect.NetworkID(context.Background())
+	//	if err != nil {
+	//		log.Fatalln(err)
+	//	}
+	//
+	//	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
+	//	if err != nil {
+	//		log.Fatalln(err)
+	//	}
+	//	auth.Nonce = big.NewInt(int64(nonce))
+	//	auth.Value = big.NewInt(10000) // in wei
+	//	auth.GasLimit = uint64(300000) // in units
+	//	auth.GasPrice = gasPrice
+	//
+	//	balances, err := newBank.SaveMoney(auth)
+	//	if err != nil {
+	//		log.Fatalln(err)
+	//	}
+	//	log.Println(balances)
+	//}
+
+	// 内部轉賬
+	{
+		// 加载您的私钥
+		privateKey, err := crypto.HexToECDSA("acb34282575500fb535a116c04b8d3c3e1f2019f5a4e5d825f92f1881654b846")
+		if err != nil {
+			log.Fatal(err)
+		}
+		publicKey := privateKey.Public()
+		publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+		if !ok {
+			log.Fatal("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+		}
+
+		fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+		// 读取我们应该用于帐户交易的随机数
+		nonce, err := connect.PendingNonceAt(context.Background(), fromAddress)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// 獲取gas費用
+		gasPrice, err := connect.SuggestGasPrice(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// 獲取鏈id
+		chainID, err := connect.NetworkID(context.Background())
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		auth, err := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		auth.Nonce = big.NewInt(int64(nonce))
+		auth.Value = big.NewInt(0)     // in wei
+		auth.GasLimit = uint64(300000) // in units
+		auth.GasPrice = gasPrice
+
+		balances, err := newBank.InternalTransfer(auth, common.HexToAddress("0xB1B775149F08aC25C2a797f827D6365E8123B802"), big.NewInt(8000))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(balances)
+	}
+}
+
+func TestPh2(t *testing.T) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	constant := common.HexToAddress("0x9A665C4C76f964E5cc25cd065643Ff99038BF003")
+	connect, err := ethclient.Dial("http://127.0.0.1:8545")
+	if err != nil {
+		panic(err)
+	}
+
+	pHR, err := phr.NewPHR(constant, connect)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	{
+		name, err := pHR.GetName(nil)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(name)
+	}
+
+	{
+		// 加载您的私钥
+		privateKey, err := crypto.HexToECDSA("c00b13047916c5dfb58944d252996c9e436ff1a9a333d53ad646a275347d80e3")
+		if err != nil {
+			log.Fatal(err)
+		}
+		publicKey := privateKey.Public()
+		publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+		if !ok {
+			log.Fatal("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+		}
+
+		fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+		// 读取我们应该用于帐户交易的随机数
+		nonce, err := connect.PendingNonceAt(context.Background(), fromAddress)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// 獲取gas費用
+		gasPrice, err := connect.SuggestGasPrice(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// 獲取鏈id
+		chainID, err := connect.NetworkID(context.Background())
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		auth, err := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		auth.Nonce = big.NewInt(int64(nonce))
+		auth.Value = big.NewInt(0)     // in wei
+		auth.GasLimit = uint64(300000) // in units
+		auth.GasPrice = gasPrice
+
+		name, err := pHR.SetName(auth, "hello world")
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(name)
+	}
+}
 
 func TestErc20(t *testing.T) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -54,56 +256,56 @@ func TestErc20(t *testing.T) {
 		log.Println(of)
 	}
 
-	//{
-	//	// 加载您的私钥
-	//	privateKey, err := crypto.HexToECDSA("c00b13047916c5dfb58944d252996c9e436ff1a9a333d53ad646a275347d80e3")
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//	publicKey := privateKey.Public()
-	//	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
-	//	if !ok {
-	//		log.Fatal("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
-	//	}
-	//
-	//	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
-	//	// 读取我们应该用于帐户交易的随机数
-	//	nonce, err := dial.PendingNonceAt(context.Background(), fromAddress)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//
-	//	// 獲取gas費用
-	//	gasPrice, err := dial.SuggestGasPrice(context.Background())
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//
-	//	// 獲取鏈id
-	//	chainID, err := dial.NetworkID(context.Background())
-	//	if err != nil {
-	//		log.Fatalln(err)
-	//	}
-	//
-	//	//auth := bind.NewKeyedTransactor(privateKey)
-	//	// 生成用於簽名的信息
-	//	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
-	//	if err != nil {
-	//		log.Fatalln(err)
-	//	}
-	//	auth.Nonce = big.NewInt(int64(nonce))
-	//	auth.Value = big.NewInt(0)     // in wei
-	//	auth.GasLimit = uint64(300000) // in units
-	//	auth.GasPrice = gasPrice
-	//
-	//	// 調用轉賬
-	//	transfer, err := eRC20.Transfer(auth, common.HexToAddress("0xB1B775149F08aC25C2a797f827D6365E8123B802"), big.NewInt(100))
-	//	if err != nil {
-	//		log.Fatalln(err)
-	//	}
-	//	log.Println(transfer.ChainId().String())
-	//	log.Println(transfer.Hash().String())
-	//}
+	{
+		// 加载您的私钥
+		privateKey, err := crypto.HexToECDSA("c00b13047916c5dfb58944d252996c9e436ff1a9a333d53ad646a275347d80e3")
+		if err != nil {
+			log.Fatal(err)
+		}
+		publicKey := privateKey.Public()
+		publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+		if !ok {
+			log.Fatal("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+		}
+
+		fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+		// 读取我们应该用于帐户交易的随机数
+		nonce, err := dial.PendingNonceAt(context.Background(), fromAddress)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// 獲取gas費用
+		gasPrice, err := dial.SuggestGasPrice(context.Background())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// 獲取鏈id
+		chainID, err := dial.NetworkID(context.Background())
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		//auth := bind.NewKeyedTransactor(privateKey)
+		// 生成用於簽名的信息
+		auth, err := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		auth.Nonce = big.NewInt(int64(nonce))
+		auth.Value = big.NewInt(0)     // in wei
+		auth.GasLimit = uint64(300000) // in units
+		auth.GasPrice = gasPrice
+
+		// 調用轉賬
+		transfer, err := eRC20.Transfer(auth, common.HexToAddress("0xB1B775149F08aC25C2a797f827D6365E8123B802"), big.NewInt(100))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Println(transfer.ChainId().String())
+		log.Println(transfer.Hash().String())
+	}
 
 	{
 		// 代幣專賬2
